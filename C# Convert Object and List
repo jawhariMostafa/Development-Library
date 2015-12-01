@@ -1,0 +1,83 @@
+using System;
+
+using System.Collections.Generic;
+
+using System.Linq;
+
+using System.Web;
+
+using System.Reflection;
+
+namespace PhotoGallery.Models
+
+{
+
+public class BaseModel
+
+{
+
+public PhotoGalleryDataEntities db = new PhotoGalleryDataEntities();
+
+public Y ConvertObject<Y, Z>(Z objectToConvert) where Y : new()
+
+{
+
+PropertyInfo[] propertyInfoList = objectToConvert.GetType().GetProperties();
+
+PropertyInfo[] ConvertedPropertyInfoList = typeof(Y).GetProperties();
+
+Y convertedObject = new Y();
+
+//loop through all properties in y and check if they are exists in Z and put the properties of Z in Y
+
+foreach (PropertyInfo property in ConvertedPropertyInfoList)
+
+{
+
+if (propertyInfoList.Where<PropertyInfo>(x => x.Name == property.Name) != null)
+
+{
+
+List<PropertyInfo> propInfo = propertyInfoList.Where<PropertyInfo>(x => x.Name == property.Name && x.CanWrite).ToList();
+
+if (propInfo.Count > 0)
+
+{
+
+property.SetValue(convertedObject, propertyInfoList.Where<PropertyInfo>(x => x.Name == property.Name).First().GetValue(objectToConvert, null), null);
+
+}
+
+}
+
+}
+
+return convertedObject;
+
+}
+
+//Convert List Z to List Y
+
+public List<Y> ConvertList<Y, Z>(List<Z> objectToConvert) where Y : new()
+
+{
+
+List<Y> convertedList = new List<Y>();
+
+foreach (Z item in objectToConvert)
+
+{
+
+convertedList.Add(ConvertObject<Y, Z>(item));
+
+}
+
+return convertedList;
+
+}
+
+　
+
+}
+
+}
